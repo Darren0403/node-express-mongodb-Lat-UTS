@@ -1,3 +1,4 @@
+
 const usersService = require('./users-service');
 const { errorResponder, errorTypes } = require('../../../core/errors');
 
@@ -50,20 +51,20 @@ async function createUser(request, response, next) {
     const name = request.body.name;
     const email = request.body.email;
     const password = request.body.password;
-    const passConfirm = request.body.passConfirm;
-
-    if (password !== passConfirm){
-      throw errorResponder(
-        errorTypes.INVALID_PASSWORD,
-        "Wrong Password Confirmation"
-      );
-    }
- 
-    const emailCheck = await usersService.emailCheck(email);
-    if (emailCheck) {
+    const password_confirm = request.body.password_confirm;
+    
+    const emailSudahada = await usersService.isEmailTaken(email);
+    if (emailSudahada) {
       throw errorResponder(
         errorTypes.EMAIL_ALREADY_TAKEN,
-        'Email ini sudah dipakai, silahkan gunakan email lain'
+        'Email already taken'
+      );
+    }
+
+    if (password !== password_confirm) {
+      throw errorResponder(
+        errorTypes.INVALID_PASSWORD,
+        'Password Confirmation Wrong'
       );
     }
 
@@ -132,11 +133,37 @@ async function deleteUser(request, response, next) {
     return next(error);
   }
 }
+async function changePassword(request, response, next) {
+  try {
+    const userId = request.params.id;
+    const { oldPassword, newPassword, newPasswordConfirm } = request.body;
 
+    if (newPassword !== newPasswordConfirm) {
+      throw errorResponder(
+        errorTypes.INVALID_PASSWORD,
+        'Password Confirmation Wrong'
+      );
+    }
+
+    await usersService.changePassword(
+      userId,
+      oldPassword,
+      newPassword,
+      newPasswordConfirm
+    );
+
+    return response
+      .status(200)
+      .json({ message: 'Password changed successfully' });
+  } catch (error) {
+    return next(error);
+  }
+}
 module.exports = {
   getUsers,
   getUser,
   createUser,
   updateUser,
   deleteUser,
+  changePassword,
 };
