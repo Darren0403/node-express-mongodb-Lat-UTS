@@ -107,10 +107,15 @@ async function deleteUser(id) {
   return true;
 }
 
+async function emailCheck(email) {
+  return usersRepository.emailCheck(email);
+}
+
 module.exports = {
   getUsers,
   getUser,
   createUser,
   updateUser,
   deleteUser,
+  emailCheck,
 };
