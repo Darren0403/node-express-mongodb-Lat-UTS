@@ -51,7 +51,7 @@ async function createUser(request, response, next) {
     const name = request.body.name;
     const email = request.body.email;
     const password = request.body.password;
-    const password_confirm = request.body.password_confirm;
+    const passConfirm = request.body.passConfirm;
     
     const emailSudahada = await usersService.isEmailTaken(email);
     if (emailSudahada) {
@@ -61,7 +61,7 @@ async function createUser(request, response, next) {
       );
     }
 
-    if (password !== password_confirm) {
+    if (password !== passConfirm) {
       throw errorResponder(
         errorTypes.INVALID_PASSWORD,
         'Password Confirmation Wrong'
